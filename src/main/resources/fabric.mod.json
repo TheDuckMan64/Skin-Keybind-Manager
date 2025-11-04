@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "skin-keybind-manager",
+	"version": "${version}",
+	"name": "Skin Keybind Manager",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"TheDuckMan64"
+	],
+	"contact": {
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/skin-keybind-manager/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"name.modid.SkinKeybindManager"
+		],
+		"client": [
+			"name.modid.SkinKeybindManagerClient"
+		]
+	},
+	"mixins": [
+	],
+	"depends": {
+		"fabricloader": ">=0.17.3",
+		"minecraft": "~1.21.10",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
