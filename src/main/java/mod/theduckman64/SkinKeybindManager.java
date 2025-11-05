@@ -1,4 +1,4 @@
-package name.modid;
+package mod.theduckman64;
 
 import net.fabricmc.api.ModInitializer;
 

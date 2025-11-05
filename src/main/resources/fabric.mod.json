@@ -3,22 +3,22 @@
 	"id": "skin-keybind-manager",
 	"version": "${version}",
 	"name": "Skin Keybind Manager",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Stores keybinds in the skin overlay",
 	"authors": [
 		"TheDuckMan64"
 	],
 	"contact": {
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/TheDuckMan64/SkinKeybindManager"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/skin-keybind-manager/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"name.modid.SkinKeybindManager"
+			"mod.theduckman64.SkinKeybindManager"
 		],
 		"client": [
-			"name.modid.SkinKeybindManagerClient"
+			"mod.theduckman64.SkinKeybindManagerClient"
 		]
 	},
 	"mixins": [
