@@ -50,7 +50,9 @@ public class SkinKeybindManagerScreen extends Screen {
                                 BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
                                         SkinKeybindManagerClient.session.getUsername()
                                 );
-                                String variant = SkinKeybindManagerClient.getVariant(skin);
+                                String variant = SkinKeybindManagerClient.getVariant(
+                                        SkinKeybindManagerClient.session.getUsername()
+                                );
 
                                 // Decode existing skin keybinds
                                 Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
@@ -94,7 +96,9 @@ public class SkinKeybindManagerScreen extends Screen {
                                 Map<String, SkinKeybindManagerClient.KeyData> keybinds =
                                         SkinKeybindManagerClient.decodePlayerSkin(
                                                 skin,
-                                                SkinKeybindManagerClient.getVariant(skin)
+                                                SkinKeybindManagerClient.getVariant(
+                                                        SkinKeybindManagerClient.session.getUsername()
+                                                )
                                         );
 
                                 int applied = SkinKeybindManagerClient.applyKeybinds(keybinds);
@@ -118,7 +122,9 @@ public class SkinKeybindManagerScreen extends Screen {
                                 BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
                                         SkinKeybindManagerClient.session.getUsername()
                                 );
-                                String variant = SkinKeybindManagerClient.getVariant(skin);
+                                String variant = SkinKeybindManagerClient.getVariant(
+                                        SkinKeybindManagerClient.session.getUsername()
+                                );
 
                                 // Decode skin keybinds and merge with client
                                 Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
@@ -156,7 +162,9 @@ public class SkinKeybindManagerScreen extends Screen {
                                 Map<String, SkinKeybindManagerClient.KeyData> decoded =
                                         SkinKeybindManagerClient.decodePlayerSkin(
                                                 skin,
-                                                SkinKeybindManagerClient.getVariant(skin)
+                                                SkinKeybindManagerClient.getVariant(
+                                                        SkinKeybindManagerClient.session.getUsername()
+                                                )
                                         );
                                 int applied = SkinKeybindManagerClient.applyKeybinds(decoded);
                                 showToast("[SkinKeybindManagerScreen] Applied " + applied + " keybinds from disk skin.");

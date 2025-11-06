@@ -36,33 +36,45 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 	public static Session session;
 
 	private static final int[][] OVERLAY_RECTS_CLASSIC = {
-			{40, 0, 56, 8},   // head overlay 1
-			{32, 8, 64, 16},   // head overlay 2
-			{20, 32, 36, 36},  // body overlay 1
-			{16, 36, 40, 48},  // body overlay 2
-			{44, 32, 52, 36},  // right arm overlay 1
-			{40, 36, 56, 48},  // right arm overlay 2
-			{52, 48, 60, 52},  // left arm overlay 1
-			{48, 52, 64, 64},  // left arm overlay 2
-			{4, 32, 12, 36},    // right leg overlay 1
-			{0, 36, 16, 48},    // right leg overlay 2
-			{4, 48, 12, 52},    // left leg overlay 1
-			{0, 52, 16, 64}    // left leg overlay 2
+			{0, 0, 8, 8},
+			{24, 0, 40, 8},
+			{56, 0, 64, 8},
+			{0, 16, 4, 20},
+			{12, 16, 20, 20},
+			{36, 16, 44, 20},
+			{52, 16, 56, 20},
+			{0, 32, 4, 36},
+			{12, 32, 20, 36},
+			{36, 32, 44, 36},
+			{52, 32, 56, 36},
+			{0, 48, 4, 52},
+			{12, 48, 20, 52},
+			{28, 48, 36, 52},
+			{44, 48, 52, 52},
+			{60, 48, 64, 52},
+			{56, 16, 64, 48}
 	};
 
 	private static final int[][] OVERLAY_RECTS_SLIM = {
-			{40, 0, 56, 8},   // head overlay 1
-			{32, 8, 64, 16},   // head overlay 2
-			{20, 32, 36, 36},  // body overlay 1
-			{16, 36, 40, 48},  // body overlay 2
-			{44, 32, 50, 36},  // right arm overlay 1 (slim is 3px wide)
-			{40, 36, 54, 48},  // right arm overlay 2
-			{52, 48, 58, 52},  // left arm overlay 1 (slim is 3px wide)
-			{48, 52, 62, 64},  // left arm overlay 2
-			{4, 32, 12, 36},    // right leg overlay 1
-			{0, 36, 16, 48},    // right leg overlay 2
-			{4, 48, 12, 52},    // left leg overlay 1
-			{0, 52, 16, 64}    // left leg overlay 2
+			{0, 0, 8, 8},
+			{24, 0, 40, 8},
+			{56, 0, 64, 8},
+			{0, 16, 4, 20},
+			{12, 16, 20, 20},
+			{36, 16, 44, 20},
+			{50, 16, 54, 20},
+			{0, 32, 4, 36},
+			{12, 32, 20, 36},
+			{36, 32, 44, 36},
+			{50, 32, 54, 36},
+			{0, 48, 4, 52},
+			{12, 48, 20, 52},
+			{28, 48, 36, 52},
+			{42, 48, 52, 52},
+			{46, 52, 48, 64},
+			{58, 48, 64, 52},
+			{54, 16, 64, 48},
+			{62, 52, 64, 64}
 	};
 
 	private static int[][] getOverlayRects(String variant) {
@@ -79,7 +91,6 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 
 		ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
 			if (!(screen instanceof ControlsOptionsScreen)) return;
-			System.out.println("ControlOptionsScreen");
 
 			ButtonWidget myButton = ButtonWidget.builder(
 							Text.literal("Skin Keybind Manager"),
@@ -368,14 +379,43 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		}
 	}
 
-	public static String getVariant(BufferedImage skin) {
-		if (skin == null) return "classic";
-		int x = 54;
-		int y = 20;
-		if (skin.getWidth() < 64 || skin.getHeight() < 64) return "classic";
-		int rgba = skin.getRGB(x, y);
-		int alpha = (rgba >> 24) & 0xFF;
-		return (alpha != 0) ? "slim" : "classic";
+	public static String getVariant(String username) throws IOException {
+		String uuid = getProfileUUID(username);
+		String accessToken = session.getAccessToken();
+
+		// Get the profile JSON from Mojang session server
+		String response = getSessionServerProfile(uuid, accessToken);
+		JsonObject profileJson = JsonParser.parseString(response).getAsJsonObject();
+		JsonArray properties = profileJson.getAsJsonArray("properties");
+
+		String base64Value = null;
+		for (JsonElement e : properties) {
+			JsonObject prop = e.getAsJsonObject();
+			if ("textures".equals(prop.get("name").getAsString())) {
+				base64Value = prop.get("value").getAsString();
+				break;
+			}
+		}
+
+		if (base64Value == null) {
+			System.err.println("[SkinFetcher] No 'textures' property found for user: " + username);
+			return "classic"; // default fallback
+		}
+
+		// Decode the Base64 value
+		String decodedJson = new String(Base64.getDecoder().decode(base64Value));
+		JsonObject texturesJson = JsonParser.parseString(decodedJson)
+				.getAsJsonObject()
+				.getAsJsonObject("textures");
+
+		if (!texturesJson.has("SKIN")) return "classic";
+
+		JsonObject skinObject = texturesJson.getAsJsonObject("SKIN");
+
+		// Return the model variant if present, otherwise "classic"
+		return skinObject.has("metadata") && skinObject.getAsJsonObject("metadata").has("model")
+				? skinObject.getAsJsonObject("metadata").get("model").getAsString()
+				: "classic";
 	}
 
 	public static boolean uploadSkin(File skinFile, String slim) throws IOException {
