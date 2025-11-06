@@ -1,0 +1,13 @@
+{
+  "itemGroup.skinkeybindmanager": "Example Mod Tab",
+  "block.skinkeybindmanager.example_block": "Example Block",
+  "item.skinkeybindmanager.example_item": "Example Item",
+
+  "skinkeybindmanager.configuration.title": "Skin Keybind Manager Configs",
+  "skinkeybindmanager.configuration.section.skinkeybindmanager.common.toml": "Skin Keybind Manager Configs",
+  "skinkeybindmanager.configuration.section.skinkeybindmanager.common.toml.title": "Skin Keybind Manager Configs",
+  "skinkeybindmanager.configuration.items": "Item List",
+  "skinkeybindmanager.configuration.logDirtBlock": "Log Dirt Block",
+  "skinkeybindmanager.configuration.magicNumberIntroduction": "Magic Number Text",
+  "skinkeybindmanager.configuration.magicNumber": "Magic Number"
+}
