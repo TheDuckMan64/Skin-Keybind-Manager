@@ -191,23 +191,16 @@ public class SkinKeybindManagerClient {
 
 			// Always use current client binding if it's set (not UNKNOWN)
 			if (boundKey != InputConstants.UNKNOWN && boundKey.getValue() != -1) {
-				System.out.println("[SkinKeybindManager] Using client keybind -> ID: " + name +
-						", Key: " + boundKey.getName());
+				mergedList.add(km);
 			} else if (skinKeybindMap != null && skinKeybindMap.containsKey(name)) {
 				// Fall back to skin keybind only if client binding is unset
 				KeyData keyData = skinKeybindMap.get(name);
 				InputConstants.Key skinKey = InputConstants.getKey(keyData.translationKey);
 				km.setKey(skinKey);
-				System.out.println("[SkinKeybindManager] Using skin keybind (fallback) -> ID: " + name +
-						", Key: " + keyData.translationKey);
-			} else {
-				System.out.println("[SkinKeybindManager] Skipping unbound key -> ID: " + name);
+				mergedList.add(km);
 			}
-
-			mergedList.add(km);
 		}
 
-		System.out.println("[SkinKeybindManager] Total merged keybinds: " + mergedList.size());
 		return mergedList;
 	}
 
