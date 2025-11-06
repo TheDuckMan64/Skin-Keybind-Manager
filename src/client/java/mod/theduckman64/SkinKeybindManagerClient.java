@@ -186,6 +186,7 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 				KeyData keyData = skinKeybindMap.get(translationKey);
 				InputUtil.Key skinKey = InputUtil.fromTranslationKey(keyData.translationKey);
 				kb.setBoundKey(skinKey);
+				mergedList.add(kb);
 			}
 		}
 		return mergedList;
