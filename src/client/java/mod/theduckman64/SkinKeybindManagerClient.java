@@ -311,7 +311,6 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		}
 
 		KeyBinding.updateKeysByCode();
-		showToast("[SkinKeybindManager] Applied " + applied + " keybinds from skin.");
 		return applied;
 	}
 
