@@ -103,25 +103,17 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		});
 	}
 
-	public static BufferedImage encodePlayerSkin(List<KeyBinding> keybindings, BufferedImage skin, String variant) throws Exception {
+	public static BufferedImage encodePlayerSkin(Map<String, KeyData> keybindMap, BufferedImage skin, String variant) throws Exception {
 		if (skin == null) return null;
 
 		// Step 1: Build keybind string (ID:KEY:TYPE format where TYPE is K or M)
 		StringBuilder sb = new StringBuilder();
 		sb.append("#SKINKEYBINDS_START\n");
-		if (keybindings != null && !keybindings.isEmpty()) {
-			for (KeyBinding kb : keybindings) {
-				String id = kb.getTranslationKey();
-				//String id = kb.getId();
-				InputUtil.Key boundKey = KeyBindingHelper.getBoundKeyOf(kb);
-
-				// Skip unbound keys (UNKNOWN_KEY has code -1)
-				if (boundKey == InputUtil.UNKNOWN_KEY || boundKey.getCode() == -1) {
-					continue;
-				}
-
-				String translationKey = boundKey.getTranslationKey();
-				sb.append(id).append(":").append(translationKey).append(";");
+		if (keybindMap != null && !keybindMap.isEmpty()) {
+			for (Map.Entry<String, KeyData> entry : keybindMap.entrySet()) {
+				String id = entry.getKey();
+				KeyData keyData = entry.getValue();
+				sb.append(id).append(":").append(keyData.translationKey).append(";");
 			}
 		}
 		sb.append("\n#SKINKEYBINDS_END\n");
@@ -169,28 +161,42 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 
 	/**
 	 * Merge existing skin keybinds with current Fabric keybinds.
-	 * Current client keybinds take precedence, skin keybinds are used as fallback.
+	 * Returns a map of keybind ID -> KeyData with the following logic:
+	 * 1) If the key exists (is bound) in the client, add it to the output
+	 * 2) If the key exists but is unbound in the client, remove it from skinKeybindMap
+	 * 3) Add all leftover items in skinKeybindMap to the output
 	 */
-	public static List<KeyBinding> getMergedKeybinds(Map<String, KeyData> skinKeybindMap) {
+	public static Map<String, KeyData> getMergedKeybinds(Map<String, KeyData> skinKeybindMap) {
 		MinecraftClient mc = MinecraftClient.getInstance();
-		List<KeyBinding> mergedList = new ArrayList<>();
+		Map<String, KeyData> mergedMap = new HashMap<>();
+
+		// Create a copy of skinKeybindMap to track leftovers
+		Map<String, KeyData> remainingSkinKeybinds = skinKeybindMap != null
+				? new HashMap<>(skinKeybindMap)
+				: new HashMap<>();
 
 		for (KeyBinding kb : mc.options.allKeys) {
-			String translationKey = kb.getBoundKeyTranslationKey();
+			String id = kb.getTranslationKey();
 			InputUtil.Key boundKey = KeyBindingHelper.getBoundKeyOf(kb);
 
-			// Always use current client binding if it's set (not UNKNOWN_KEY)
+			// Check if key is bound (not UNKNOWN_KEY and code != -1)
 			if (boundKey != InputUtil.UNKNOWN_KEY && boundKey.getCode() != -1) {
-				mergedList.add(kb);
-			} else if (skinKeybindMap != null && skinKeybindMap.containsKey(translationKey)) {
-				// Fall back to skin keybind only if client binding is unset
-				KeyData keyData = skinKeybindMap.get(translationKey);
-				InputUtil.Key skinKey = InputUtil.fromTranslationKey(keyData.translationKey);
-				kb.setBoundKey(skinKey);
-				mergedList.add(kb);
+				// 1) Key exists in client - add it to output
+				String translationKey = boundKey.getTranslationKey();
+				mergedMap.put(id, new KeyData(translationKey, id));
+
+				// Remove from remaining skin keybinds since we found it in client
+				remainingSkinKeybinds.remove(id);
+			} else {
+				// 2) Key exists but is unbound - remove it from skin keybinds
+				remainingSkinKeybinds.remove(id);
 			}
 		}
-		return mergedList;
+
+		// 3) Add all leftover items from skinKeybindMap to output
+		mergedMap.putAll(remainingSkinKeybinds);
+
+		return mergedMap;
 	}
 
 	/**
@@ -302,7 +308,6 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 			String id = kb.getTranslationKey();
 
 			if (skinKeybindMap.containsKey(id)) {
-				System.out.println("ID Found: " + id);
 				KeyData keyData = skinKeybindMap.get(id);
 
 				// Parse the key from its translation key
