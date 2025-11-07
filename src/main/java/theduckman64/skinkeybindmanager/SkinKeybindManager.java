@@ -1,4 +1,4 @@
-package name.modid;
+package theduckman64.skinkeybindmanager;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -19,6 +19,6 @@ public class SkinKeybindManager implements ModInitializer {
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
 
-		LOGGER.info("Hello Fabric world!");
+		LOGGER.info("Client only mod!");
 	}
 }
