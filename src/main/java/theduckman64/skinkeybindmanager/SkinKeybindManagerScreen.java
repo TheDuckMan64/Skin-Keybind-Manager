@@ -1,15 +1,12 @@
-package mod.theduckman64;
+package theduckman64.skinkeybindmanager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.components.toasts.SystemToast;
-import com.mojang.authlib.GameProfile;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Map;
 
 public class SkinKeybindManagerScreen extends Screen {
@@ -48,35 +45,32 @@ public class SkinKeybindManagerScreen extends Screen {
                             }
 
                             try {
-                                // Download current skin
-                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
-                                        SkinKeybindManagerClient.user.getName()
-                                );
-                                String variant = SkinKeybindManagerClient.getVariant(
-                                        SkinKeybindManagerClient.user.getName()
-                                );
+                                // Download current skin (using wrapper)
+                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin();
+                                String variant = SkinKeybindManagerClient.getVariant();
 
-                                // Decode existing skin keybinds
-                                Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
-                                        SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
+                                // Decode existing skin keybinds (using util)
+                                Map<String, SkinKeybindUtils.KeyData> skinKeybinds =
+                                        SkinKeybindUtils.decodePlayerSkin(skin, variant);
 
-                                // Merge with current client bindings (client takes priority)
-                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings =
+                                // Merge with current client bindings (using client method)
+                                Map<String, SkinKeybindUtils.KeyData> mergedBindings =
                                         SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
-                                // Encode merged bindings into skin
-                                BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
+                                // Encode merged bindings into skin (using util)
+                                BufferedImage encodedSkin = SkinKeybindUtils.encodePlayerSkin(
                                         mergedBindings,
                                         skin,
                                         variant);
 
                                 boolean isSlim = variant.equalsIgnoreCase("slim");
+                                // Upload (using wrapper)
                                 boolean success = SkinKeybindManagerClient.uploadSkin(
-                                        SkinKeybindManagerClient.saveSkinToDisk(encodedSkin),
+                                        SkinKeybindManagerClient.saveSkinToDisk(encodedSkin), // save wrapper
                                         isSlim);
 
                                 if (success) {
-                                    lastUploadTime = currentTime; // Update cooldown timer
+                                    lastUploadTime = currentTime;
                                     showToast("Skin Keybinds", "Successfully uploaded keybinds to skin");
                                 } else {
                                     showToast("Skin Keybinds", "Failed to upload skin");
@@ -94,20 +88,26 @@ public class SkinKeybindManagerScreen extends Screen {
                         Component.literal("Download keybinds from skin"),
                         b -> {
                             try {
-                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
-                                        SkinKeybindManagerClient.user.getName()
-                                );
+                                long currentTime = System.currentTimeMillis();
+                                long timeSinceLastUpload = currentTime - lastUploadTime;
 
-                                Map<String, SkinKeybindManagerClient.KeyData> keybinds =
-                                        SkinKeybindManagerClient.decodePlayerSkin(
-                                                skin,
-                                                SkinKeybindManagerClient.getVariant(
-                                                        SkinKeybindManagerClient.user.getName()
-                                                )
-                                        );
+                                if (timeSinceLastUpload < UPLOAD_COOLDOWN_MS) {
+                                    long remainingMs = UPLOAD_COOLDOWN_MS - timeSinceLastUpload;
+                                    long remainingSeconds = (remainingMs + 999) / 1000; // Round up
+                                    showToast("Upload Cooldown", "Please wait " + remainingSeconds + " seconds");
+                                    return;
+                                }
+                                // Download (using wrapper)
+                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin();
+                                String variant = SkinKeybindManagerClient.getVariant();
 
+                                // Decode (using util)
+                                Map<String, SkinKeybindUtils.KeyData> keybinds =
+                                        SkinKeybindUtils.decodePlayerSkin(skin, variant);
+
+                                // Apply (using client method)
                                 int applied = SkinKeybindManagerClient.applyKeybinds(keybinds);
-
+                                lastUploadTime = currentTime;
                                 showToast("Skin Keybinds", "Applied " + applied + " keybinds from skin");
                             } catch (Exception e) {
                                 showToast("Error", "Failed to download: " + e.getMessage());
@@ -122,25 +122,24 @@ public class SkinKeybindManagerScreen extends Screen {
                         Component.literal("Save PNG to disk"),
                         b -> {
                             try {
-                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
-                                        SkinKeybindManagerClient.user.getName()
-                                );
-                                String variant = SkinKeybindManagerClient.getVariant(
-                                        SkinKeybindManagerClient.user.getName()
-                                );
+                                // Download (using wrapper)
+                                BufferedImage skin = SkinKeybindManagerClient.downloadSkin();
+                                String variant = SkinKeybindManagerClient.getVariant();
 
-                                // Decode skin keybinds and merge with client
-                                Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
-                                        SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
-                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings =
+                                // Decode (using util)
+                                Map<String, SkinKeybindUtils.KeyData> skinKeybinds =
+                                        SkinKeybindUtils.decodePlayerSkin(skin, variant);
+                                // Merge (using client method)
+                                Map<String, SkinKeybindUtils.KeyData> mergedBindings =
                                         SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
-                                // Encode and save
-                                BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
+                                // Encode (using util)
+                                BufferedImage encodedSkin = SkinKeybindUtils.encodePlayerSkin(
                                         mergedBindings,
                                         skin,
                                         variant
                                 );
+                                // Save (using wrapper)
                                 SkinKeybindManagerClient.saveSkinToDisk(encodedSkin);
 
                                 showToast("Skin Keybinds", "Skin saved to disk successfully");
@@ -157,19 +156,16 @@ public class SkinKeybindManagerScreen extends Screen {
                         Component.literal("Load keybinds from disk"),
                         b -> {
                             try {
+                                // Load (using wrapper)
                                 BufferedImage skin = SkinKeybindManagerClient.loadSkinFromDisk();
-                                if (skin == null) {
-                                    showToast("Error", "No skin file found on disk");
-                                    return;
-                                }
+                                // Get variant (using wrapper)
+                                String variant = SkinKeybindManagerClient.getVariant();
 
-                                Map<String, SkinKeybindManagerClient.KeyData> decoded =
-                                        SkinKeybindManagerClient.decodePlayerSkin(
-                                                skin,
-                                                SkinKeybindManagerClient.getVariant(
-                                                        SkinKeybindManagerClient.user.getName()
-                                                )
-                                        );
+                                // Decode (using util)
+                                Map<String, SkinKeybindUtils.KeyData> decoded =
+                                        SkinKeybindUtils.decodePlayerSkin(skin, variant);
+
+                                // Apply (using client method)
                                 int applied = SkinKeybindManagerClient.applyKeybinds(decoded);
 
                                 showToast("Skin Keybinds", "Applied " + applied + " keybinds from disk");
