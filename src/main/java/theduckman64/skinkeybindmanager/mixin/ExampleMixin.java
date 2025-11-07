@@ -1,4 +1,4 @@
-package mod.theduckman64.mixin;
+package theduckman64.skinkeybindmanager.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

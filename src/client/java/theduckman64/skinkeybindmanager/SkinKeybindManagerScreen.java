@@ -1,15 +1,13 @@
-package mod.theduckman64;
+package theduckman64.skinkeybindmanager;
 
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.option.KeyBinding;
 import net.minecraft.text.Text;
 import net.minecraft.client.toast.SystemToast;
 
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Map;
 
 public class SkinKeybindManagerScreen extends Screen {
@@ -55,14 +53,16 @@ public class SkinKeybindManagerScreen extends Screen {
                                 );
 
                                 // Decode existing skin keybinds
-                                Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> skinKeybinds =
                                         SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
 
                                 // Merge with current client bindings (client takes priority)
-                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
                                 // Encode merged bindings into skin
-                                BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
+                                BufferedImage encodedSkin = SkinKeybindUtils.encodePlayerSkin( // This can call SkinKeybindUtils directly
                                         mergedBindings,
                                         skin,
                                         variant);
@@ -90,11 +90,22 @@ public class SkinKeybindManagerScreen extends Screen {
                         Text.of("Download keybinds from skin"),
                         b -> {
                             try {
+                                long currentTime = System.currentTimeMillis();
+                                long timeSinceLastUpload = currentTime - lastUploadTime;
+
+                                if (timeSinceLastUpload < UPLOAD_COOLDOWN_MS) {
+                                    long remainingMs = UPLOAD_COOLDOWN_MS - timeSinceLastUpload;
+                                    long remainingSeconds = (remainingMs + 999) / 1000; // Round up
+                                    showToast("Please wait " + remainingSeconds + " seconds (API Limit reached)");
+                                    return;
+                                }
+
                                 BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
                                         SkinKeybindManagerClient.session.getUsername()
                                 );
 
-                                Map<String, SkinKeybindManagerClient.KeyData> keybinds =
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> keybinds =
                                         SkinKeybindManagerClient.decodePlayerSkin(
                                                 skin,
                                                 SkinKeybindManagerClient.getVariant(
@@ -103,7 +114,7 @@ public class SkinKeybindManagerScreen extends Screen {
                                         );
 
                                 int applied = SkinKeybindManagerClient.applyKeybinds(keybinds);
-
+                                lastUploadTime = System.currentTimeMillis();
                                 showToast("Applied " + applied + " keybinds from skin.");
                             } catch (Exception e) {
                                 showToast("Error: " + e.getMessage());
@@ -128,12 +139,14 @@ public class SkinKeybindManagerScreen extends Screen {
                                 );
 
                                 // Decode skin keybinds and merge with client
-                                Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> skinKeybinds =
                                         SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
-                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
                                 // Encode and save
-                                BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
+                                BufferedImage encodedSkin = SkinKeybindUtils.encodePlayerSkin( // This can call SkinKeybindUtils directly
                                         mergedBindings,
                                         skin,
                                         variant
@@ -160,7 +173,8 @@ public class SkinKeybindManagerScreen extends Screen {
                                     return;
                                 }
 
-                                Map<String, SkinKeybindManagerClient.KeyData> decoded =
+                                // --- Use SkinKeybindUtils.KeyData ---
+                                Map<String, SkinKeybindUtils.KeyData> decoded =
                                         SkinKeybindManagerClient.decodePlayerSkin(
                                                 skin,
                                                 SkinKeybindManagerClient.getVariant(

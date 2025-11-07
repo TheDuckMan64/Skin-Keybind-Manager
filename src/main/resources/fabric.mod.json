@@ -15,10 +15,10 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"mod.theduckman64.SkinKeybindManager"
+          "theduckman64.skinkeybindmanager.SkinKeybindManager"
 		],
 		"client": [
-			"mod.theduckman64.SkinKeybindManagerClient"
+          "theduckman64.skinkeybindmanager.SkinKeybindManagerClient"
 		]
 	},
 	"mixins": [

@@ -1,4 +1,4 @@
-package mod.theduckman64;
+package theduckman64.skinkeybindmanager;
 
 import net.fabricmc.api.ModInitializer;
 
