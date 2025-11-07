@@ -119,7 +119,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
         // Save PNG to disk
         this.addRenderableWidget(Button.builder(
-                        Component.literal("Save PNG to disk"),
+                        Component.literal("Save skin with keybinds to disk"),
                         b -> {
                             try {
                                 // Download (using wrapper)
@@ -153,7 +153,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
         // Load keybinds from disk
         this.addRenderableWidget(Button.builder(
-                        Component.literal("Load keybinds from disk"),
+                        Component.literal("Load skin with keybinds from disk"),
                         b -> {
                             try {
                                 // Load (using wrapper)
