@@ -110,25 +110,17 @@ public class SkinKeybindManagerClient {
 		}
 	}
 
-	public static BufferedImage encodePlayerSkin(List<KeyMapping> keybindings, BufferedImage skin, String variant) throws Exception {
+	public static BufferedImage encodePlayerSkin(Map<String, KeyData> keybindMap, BufferedImage skin, String variant) throws Exception {
 		if (skin == null) return null;
 
 		// Step 1: Build keybind string (ID:KEY format)
 		StringBuilder sb = new StringBuilder();
 		sb.append("#SKINKEYBINDS_START\n");
-		if (keybindings != null && !keybindings.isEmpty()) {
-			for (KeyMapping km : keybindings) {
-				String id = km.getName();
-				InputConstants.Key boundKey = km.getKey();
-
-				// Skip unbound keys (UNKNOWN has value -1)
-				if (boundKey.getValue() == -1 || boundKey == InputConstants.UNKNOWN) {
-					continue;
-				}
-
-				String translationKey = boundKey.getName();
-				System.out.println("[SkinKeybindManager] Encoding keybind -> ID: " + id + ", Key: " + translationKey);
-				sb.append(id).append(":").append(translationKey).append(";");
+		if (keybindMap != null && !keybindMap.isEmpty()) {
+			for (Map.Entry<String, KeyData> entry : keybindMap.entrySet()) {
+				String id = entry.getKey();
+				KeyData keyData = entry.getValue();
+				sb.append(id).append(":").append(keyData.translationKey).append(";");
 			}
 		}
 		sb.append("\n#SKINKEYBINDS_END\n");
@@ -178,30 +170,43 @@ public class SkinKeybindManagerClient {
 	}
 
 	/**
-	 * Merge existing skin keybinds with current keybinds.
-	 * Current client keybinds take precedence, skin keybinds are used as fallback.
+	 * Merge existing skin keybinds with current Fabric keybinds.
+	 * Returns a map of keybind ID -> KeyData with the following logic:
+	 * 1) If the key exists (is bound) in the client, add it to the output
+	 * 2) If the key exists but is unbound in the client, remove it from skinKeybindMap
+	 * 3) Add all leftover items in skinKeybindMap to the output
 	 */
-	public static List<KeyMapping> getMergedKeybinds(Map<String, KeyData> skinKeybindMap) {
+	public static Map<String, KeyData> getMergedKeybinds(Map<String, KeyData> skinKeybindMap) {
 		Minecraft mc = Minecraft.getInstance();
-		List<KeyMapping> mergedList = new ArrayList<>();
+		Map<String, KeyData> mergedMap = new HashMap<>();
 
-		for (KeyMapping km : mc.options.keyMappings) {
-			String name = km.getName();
-			InputConstants.Key boundKey = km.getKey();
+		// Create a copy of skinKeybindMap to track leftovers
+		Map<String, KeyData> remainingSkinKeybinds = skinKeybindMap != null
+				? new HashMap<>(skinKeybindMap)
+				: new HashMap<>();
 
-			// Always use current client binding if it's set (not UNKNOWN)
+		for (KeyMapping kb : mc.options.keyMappings) {
+			String id = kb.getName();
+			InputConstants.Key boundKey = kb.getKey();
+
+			// Check if key is bound (not UNKNOWN_KEY and code != -1)
 			if (boundKey != InputConstants.UNKNOWN && boundKey.getValue() != -1) {
-				mergedList.add(km);
-			} else if (skinKeybindMap != null && skinKeybindMap.containsKey(name)) {
-				// Fall back to skin keybind only if client binding is unset
-				KeyData keyData = skinKeybindMap.get(name);
-				InputConstants.Key skinKey = InputConstants.getKey(keyData.translationKey);
-				km.setKey(skinKey);
-				mergedList.add(km);
+				// 1) Key exists in client - add it to output
+				String translationKey = boundKey.getName();
+				mergedMap.put(id, new KeyData(translationKey, id));
+
+				// Remove from remaining skin keybinds since we found it in client
+				remainingSkinKeybinds.remove(id);
+			} else {
+				// 2) Key exists but is unbound - remove it from skin keybinds
+				remainingSkinKeybinds.remove(id);
 			}
 		}
 
-		return mergedList;
+		// 3) Add all leftover items from skinKeybindMap to output
+		mergedMap.putAll(remainingSkinKeybinds);
+
+		return mergedMap;
 	}
 
 	/**

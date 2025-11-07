@@ -61,7 +61,8 @@ public class SkinKeybindManagerScreen extends Screen {
                                         SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
 
                                 // Merge with current client bindings (client takes priority)
-                                List<KeyMapping> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
+                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings =
+                                        SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
                                 // Encode merged bindings into skin
                                 BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
@@ -131,7 +132,8 @@ public class SkinKeybindManagerScreen extends Screen {
                                 // Decode skin keybinds and merge with client
                                 Map<String, SkinKeybindManagerClient.KeyData> skinKeybinds =
                                         SkinKeybindManagerClient.decodePlayerSkin(skin, variant);
-                                List<KeyMapping> mergedBindings = SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
+                                Map<String, SkinKeybindManagerClient.KeyData> mergedBindings =
+                                        SkinKeybindManagerClient.getMergedKeybinds(skinKeybinds);
 
                                 // Encode and save
                                 BufferedImage encodedSkin = SkinKeybindManagerClient.encodePlayerSkin(
