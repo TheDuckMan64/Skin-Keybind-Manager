@@ -65,7 +65,8 @@ neoForge {
         }
 
         data {
-            clientData()
+            data()
+            //clientData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
@@ -113,7 +114,6 @@ configurations {
 }
 
 dependencies {
-    jarJar(implementation(group: 'com.google.code.gson', name: 'gson', version: '2.10.1')) {}
     jarJar(implementation(group: 'org.tukaani', name: 'xz', version: '1.10')) {}
     jarJar(implementation(group: 'com.squareup.okio', name: 'okio', version: '3.4.0')) {}
     jarJar(implementation(group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.12.0')) {}
