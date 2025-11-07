@@ -73,6 +73,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
                                 if (success) {
                                     showToast("Successfully uploaded keybinds to skin");
+                                    lastUploadTime = System.currentTimeMillis();
                                 } else {
                                     showToast("Failed to upload skin");
                                 }

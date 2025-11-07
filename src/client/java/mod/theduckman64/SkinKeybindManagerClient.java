@@ -111,7 +111,7 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		sb.append("#SKINKEYBINDS_START\n");
 		if (keybindings != null && !keybindings.isEmpty()) {
 			for (KeyBinding kb : keybindings) {
-				String id = kb.getId();
+				String id = kb.getTranslationKey();
 				//String id = kb.getId();
 				InputUtil.Key boundKey = KeyBindingHelper.getBoundKeyOf(kb);
 
@@ -299,9 +299,10 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		int applied = 0;
 
 		for (KeyBinding kb : allKeys) {
-			String id = kb.getId();
+			String id = kb.getTranslationKey();
 
 			if (skinKeybindMap.containsKey(id)) {
+				System.out.println("ID Found: " + id);
 				KeyData keyData = skinKeybindMap.get(id);
 
 				// Parse the key from its translation key
