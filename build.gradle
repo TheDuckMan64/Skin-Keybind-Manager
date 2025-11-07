@@ -32,15 +32,13 @@ loom {
 
 dependencies {
 	include 'org.tukaani:xz:1.10'
-	include 'com.squareup.okio:okio:3.3.0'
+	include 'com.squareup.okio:okio:3.4.0'
 	include 'com.squareup.okhttp3:okhttp:4.12.0'
-	include 'com.google.code.gson:gson:2.10.1'
 	include 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'
 	implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.9.0'
 	implementation 'org.tukaani:xz:1.10'
 	implementation 'com.squareup.okio:okio:3.4.0'
 	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-	implementation 'com.google.code.gson:gson:2.10.1'
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
