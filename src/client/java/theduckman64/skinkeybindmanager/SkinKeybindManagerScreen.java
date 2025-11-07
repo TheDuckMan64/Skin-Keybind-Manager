@@ -128,7 +128,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
         // Save PNG to disk (encode online skin with merged keybinds and save)
         ButtonWidget toDiskButton = ButtonWidget.builder(
-                        Text.of("Save PNG to disk"),
+                        Text.of("Save skin with keybinds to disk"),
                         b -> {
                             try {
                                 BufferedImage skin = SkinKeybindManagerClient.downloadSkin(
@@ -164,7 +164,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
         // Load keybinds from disk
         ButtonWidget fromDiskButton = ButtonWidget.builder(
-                        Text.of("Load keybinds from disk"),
+                        Text.of("Load skin with keybinds from disk"),
                         b -> {
                             try {
                                 BufferedImage skin = SkinKeybindManagerClient.loadSkinFromDisk();
