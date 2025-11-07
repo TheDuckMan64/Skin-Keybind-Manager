@@ -181,7 +181,7 @@ public class SkinKeybindManagerScreen extends Screen {
     }
 
     private void showToast(String title, String message) {
-        Minecraft.getInstance().getToastManager().addToast(
+        Minecraft.getInstance().getToasts().addToast(
                 new SystemToast(
                         SystemToast.SystemToastId.NARRATOR_TOGGLE,
                         Component.literal(title),
