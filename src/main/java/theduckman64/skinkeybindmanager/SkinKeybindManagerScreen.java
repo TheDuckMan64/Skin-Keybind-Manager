@@ -88,6 +88,15 @@ public class SkinKeybindManagerScreen extends Screen {
                         Component.literal("Download keybinds from skin"),
                         b -> {
                             try {
+                                long currentTime = System.currentTimeMillis();
+                                long timeSinceLastUpload = currentTime - lastUploadTime;
+
+                                if (timeSinceLastUpload < UPLOAD_COOLDOWN_MS) {
+                                    long remainingMs = UPLOAD_COOLDOWN_MS - timeSinceLastUpload;
+                                    long remainingSeconds = (remainingMs + 999) / 1000; // Round up
+                                    showToast("Upload Cooldown", "Please wait " + remainingSeconds + " seconds");
+                                    return;
+                                }
                                 // Download (using wrapper)
                                 BufferedImage skin = SkinKeybindManagerClient.downloadSkin();
                                 String variant = SkinKeybindManagerClient.getVariant();
@@ -98,7 +107,7 @@ public class SkinKeybindManagerScreen extends Screen {
 
                                 // Apply (using client method)
                                 int applied = SkinKeybindManagerClient.applyKeybinds(keybinds);
-
+                                lastUploadTime = currentTime;
                                 showToast("Skin Keybinds", "Applied " + applied + " keybinds from skin");
                             } catch (Exception e) {
                                 showToast("Error", "Failed to download: " + e.getMessage());
