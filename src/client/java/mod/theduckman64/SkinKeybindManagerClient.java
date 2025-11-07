@@ -112,6 +112,7 @@ public class SkinKeybindManagerClient implements ClientModInitializer {
 		if (keybindings != null && !keybindings.isEmpty()) {
 			for (KeyBinding kb : keybindings) {
 				String id = kb.getId();
+				//String id = kb.getId();
 				InputUtil.Key boundKey = KeyBindingHelper.getBoundKeyOf(kb);
 
 				// Skip unbound keys (UNKNOWN_KEY has code -1)
