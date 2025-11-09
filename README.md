@@ -5,5 +5,5 @@ Neoforge: 1.21.x
 
 TODO:
 
-- [] Add compression
-- [] Prettify GUI
+- [ ] Add compression
+- [ ] Prettify GUI
